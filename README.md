@@ -15,7 +15,7 @@
     limitations under the License.
 
 -->
-#The Minesweeper Anti-Challenge
+# The Minesweeper Anti-Challenge
 
 Interviewing is difficult. I could go into the problems, but if you'd done any interviews, you know. It's hard.
 
