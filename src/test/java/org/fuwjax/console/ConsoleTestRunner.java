@@ -17,24 +17,39 @@ public abstract class ConsoleTestRunner{
 	private String prefix = "> ";
 
 	public abstract void daemon() throws Exception;
-
+	
 	public void test(Path test) throws Exception {
+		test(test, false);
+	}
+
+	public void test(Path test, boolean echo) throws Exception {
 		final AtomicInteger errors = new AtomicInteger();
 		try (Pipe log = pipe().to(Paths.get("target/console.log"));
 				Pipe console = pipe().teeTo(pipe().transformLine(l -> prefix+l).to(log), STDIN);
 				PipeReader monitor = new PipeReader();
-				Pipe stdout = pipe().teeTo(log, monitor).mergeFrom(STDOUT, STDERR);
+				Pipe capture = pipe().teeTo(log, monitor).mergeFrom(STDOUT, STDERR);
+				Pipe stdout = pipe().to(STDOUT);
+				Pipe stderr = pipe().to(STDERR);
 				Pipe feed = pipe().from(test)){
 			feed.readLines(line -> {
 				if(line.startsWith(prefix)){
 					console.writeLine(line.substring(2));
-				}else if(line.startsWith("/ ")){
-					if(!monitor.readLine().matches(line.substring(2))){
-						errors.incrementAndGet();
+					if(echo){
+						stdout.writeLine(line);
 					}
 				}else{
-					if(!line.equals(monitor.readLine())){
+					boolean match = true;
+					String actual = monitor.readLine();
+					if(line.startsWith("/ ")){
+						match = actual.matches(line.substring(2));
+					}else{
+						match = line.equals(actual);
+					}
+					if(!match){
 						errors.incrementAndGet();
+						stderr.writeLine("X "+actual);
+					}else if(echo){
+						stdout.writeLine(actual);
 					}
 				}
 			});

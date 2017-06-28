@@ -52,9 +52,9 @@ public class PathPipe implements PipeTerminal {
 	}
 	
 	private void readLoop(Consumer<String> handler){
-		try(BufferedReader reader = Files.newBufferedReader(target)){
+		try(BufferedReader input = Files.newBufferedReader(target)){
 			while(!closed){
-				String line = reader.readLine();
+				String line = input.readLine();
 				if(line == null){
 					closed = true;
 				}else{

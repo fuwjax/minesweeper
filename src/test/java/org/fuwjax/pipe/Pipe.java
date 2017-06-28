@@ -8,9 +8,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Pipe implements PipeTerminal {
-	public static final PipeTerminal STDIN = new StdInPipe(System.in);
-	public static final PipeTerminal STDOUT = new StdOutPipe(System.out, System::setOut);
-	public static final PipeTerminal STDERR = new StdOutPipe(System.err, System::setErr);
+	public static final PipeTerminal STDIN = new StdInPipe();
+	public static final PipeTerminal STDOUT = new StdOutPipe(HijackPrintStream.Target.stdout);
+	public static final PipeTerminal STDERR = new StdOutPipe(HijackPrintStream.Target.stderr);
 
 	private Function<String, String> transform = Function.identity();
 	private List<? extends PipeTerminal> sinks = Collections.emptyList();

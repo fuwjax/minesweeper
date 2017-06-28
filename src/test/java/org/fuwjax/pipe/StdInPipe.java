@@ -9,27 +9,33 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class StdInPipe implements PipeTerminal {
-	private InputStream original;
 	private AtomicBoolean closed = new AtomicBoolean(true);
 	private PrintStream writer;
 	private Thread reader;
+	private InputStream original;
 
-	public StdInPipe(InputStream original) {
-		this.original = original;
-	}
-	
 	@Override
 	public void prepareWrite() {
-		InputOutputStream pipe = new InputOutputStream();
-		writer = new PrintStream(pipe.output());
-		System.setIn(pipe.input());
+		try{
+			HijackInputStream.closeHijack();
+			InputOutputStream pipe = new InputOutputStream();
+			writer = new PrintStream(pipe.output());
+			original = HijackInputStream.hijackStdIn(pipe.input());
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public void close() {
-		closed.set(true);
-		System.setIn(original);
-		writer = null;
+		try{
+			closed.set(true);
+			writer.close();
+			writer = null;
+			HijackInputStream.closeHijack();
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -47,9 +53,9 @@ public class StdInPipe implements PipeTerminal {
 	}
 	
 	private void readLoop(Consumer<String> handler){
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(original))){
+		try(BufferedReader input = new BufferedReader(new InputStreamReader(original))){
 			while(!closed.get()){
-				String line = reader.readLine();
+				String line = input.readLine();
 				if(line == null){
 					closed.set(true);
 				}else{

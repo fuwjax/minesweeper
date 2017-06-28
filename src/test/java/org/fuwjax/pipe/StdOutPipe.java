@@ -7,15 +7,17 @@ import java.io.PrintStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import org.fuwjax.pipe.HijackPrintStream.Target;
+
 public class StdOutPipe implements PipeTerminal {
 	private PrintStream original;
-	private Consumer<PrintStream> setter;
 	private AtomicBoolean closed = new AtomicBoolean(true);
 	private Thread reader;
+	private Target target;
 
-	public StdOutPipe(PrintStream original, Consumer<PrintStream> setter) {
-		this.original = original;
-		this.setter = setter;
+	public StdOutPipe(HijackPrintStream.Target target) {
+		this.target = target;
+		original = target.original();
 	}
 
 	@Override
@@ -27,12 +29,12 @@ public class StdOutPipe implements PipeTerminal {
 	public void writeLine(String line) {
 		original.println(line);
 	}
-	
+
 	@Override
 	public void prepareWrite() {
 		// do nothing
 	}
-	
+
 	@Override
 	public void finishRead() {
 		try {
@@ -41,31 +43,30 @@ public class StdOutPipe implements PipeTerminal {
 			Thread.currentThread().interrupt();
 		}
 	}
-	
-	private void readLoop(Consumer<String> handler){
-		try{
-			InputOutputStream pipe = new InputOutputStream();
-			setter.accept(new PrintStream(pipe.output()));
-			BufferedReader reader = new BufferedReader(new InputStreamReader(pipe.input()));
-			while(!closed.get()){
-				String line = reader.readLine();
-				if(line == null){
+
+	private void readLoop(Consumer<String> handler) {
+		InputOutputStream pipe = new InputOutputStream();
+		try (BufferedReader input = new BufferedReader(new InputStreamReader(pipe.input()));) {
+			target.hijack(new PrintStream(pipe.output()));
+			while (!closed.get()) {
+				String line = input.readLine();
+				if (line == null) {
 					closed.set(true);
-				}else{
+				} else {
 					handler.accept(line);
 				}
 			}
-		}catch(IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
-		}finally{
-			setter.accept(original);
+		} finally {
+			target.close();
 			close();
 		}
 	}
 
 	@Override
-	public void readLines(Consumer<String> handler){
-		if(closed.compareAndSet(true, false)){
+	public void readLines(Consumer<String> handler) {
+		if (closed.compareAndSet(true, false)) {
 			reader = new Thread(() -> readLoop(handler));
 			reader.setDaemon(true);
 			reader.start();

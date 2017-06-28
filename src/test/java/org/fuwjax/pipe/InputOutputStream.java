@@ -1,5 +1,6 @@
 package org.fuwjax.pipe;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +9,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class InputOutputStream {
+public class InputOutputStream{
 	private InputStream in = new InputStream(){
 		@Override
 		public int read() throws IOException {
@@ -51,7 +52,6 @@ public class InputOutputStream {
 		public int available() throws IOException {
 			return readCapacity();
 		}
-		
 	};
 	
 	private OutputStream out = new OutputStream(){
@@ -73,17 +73,19 @@ public class InputOutputStream {
 		
 		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
+			int offset = off;
+			int length = len;
 			lock.lock();
 			try{
 				while(len > 0){
 					while(writeCapacity() == 0){
 						isNotFull.await();
 					}
-					int count = Math.min(writeCapacity(), len);
-					forWrite().put(b, off, len);
+					int count = Math.min(writeCapacity(), length);
+					forWrite().put(b, offset, length);
 					isNotEmpty.signal();
-					off += count;
-					len -= count;
+					offset += count;
+					length -= count;
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
