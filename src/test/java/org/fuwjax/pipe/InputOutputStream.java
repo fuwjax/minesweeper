@@ -1,6 +1,5 @@
 package org.fuwjax.pipe;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,10 +15,10 @@ public class InputOutputStream{
 			lock.lock();
 			try{
 				while(readCapacity() == 0){
-					isNotEmpty.await();
+					untilIo.await();
 				}
 				int b = forRead().get();
-				isNotFull.signal();
+				untilIo.signalAll();
 				return b;
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -34,11 +33,11 @@ public class InputOutputStream{
 			lock.lock();
 			try{
 				while(readCapacity() == 0){
-					isNotEmpty.await();
+					untilIo.await();
 				}
 				int count = Math.min(readCapacity(), len);
 				forRead().get(b, off, count);
-				isNotFull.signal();
+				untilIo.signalAll();
 				return count;
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -60,10 +59,10 @@ public class InputOutputStream{
 			lock.lock();
 			try{
 				while(writeCapacity() == 0){
-					isNotFull.await();
+					untilIo.await();
 				}
 				forWrite().put((byte)b);
-				isNotEmpty.signal();
+				untilIo.signalAll();
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}finally{
@@ -77,13 +76,13 @@ public class InputOutputStream{
 			int length = len;
 			lock.lock();
 			try{
-				while(len > 0){
+				while(length > 0){
 					while(writeCapacity() == 0){
-						isNotFull.await();
+						untilIo.await();
 					}
 					int count = Math.min(writeCapacity(), length);
 					forWrite().put(b, offset, length);
-					isNotEmpty.signal();
+					untilIo.signalAll();
 					offset += count;
 					length -= count;
 				}
@@ -101,8 +100,7 @@ public class InputOutputStream{
 	}
 	
 	private final Lock lock = new ReentrantLock();
-	private final Condition isNotEmpty = lock.newCondition();
-	private final Condition isNotFull = lock.newCondition();
+	private final Condition untilIo = lock.newCondition();
 	private final ByteBuffer buffer = ByteBuffer.allocate(4096);
 	private volatile Mode mode = Mode.WRITE;
 	

@@ -55,6 +55,14 @@ public class HijackPrintStream extends PrintStream {
 		}
 	}
 
+	public static PrintStream originalStdOut() {
+		return Target.stdout.original();
+	}
+
+	public static PrintStream originalStdErr() {
+		return Target.stderr.original();
+	}
+
 	private PrintStream capture;
 	private PrintStream original;
 	private Target target;

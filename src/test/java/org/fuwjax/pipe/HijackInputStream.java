@@ -7,10 +7,16 @@ public class HijackInputStream extends InputStream {
 	private InputStream input;
 	private InputStream stdIn;
 
-	public static InputStream hijackStdIn(InputStream input) {
-		InputStream stdIn = System.in;
-		System.setIn(new HijackInputStream(input, stdIn));
-		return stdIn;
+	public static void hijackStdIn(InputStream input) {
+		System.setIn(new HijackInputStream(input, original()));
+	}
+	
+	public static InputStream original() {
+		InputStream original = System.in;
+		while(original instanceof HijackInputStream){
+			original = ((HijackInputStream)original).stdIn;
+		}
+		return original;
 	}
 	
 	public static void closeHijack() throws IOException{
