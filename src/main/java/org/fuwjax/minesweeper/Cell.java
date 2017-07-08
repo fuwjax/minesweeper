@@ -3,8 +3,6 @@ package org.fuwjax.minesweeper;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.fuwjax.game.Tile;
-
 public class Cell implements GameCell {
 	private Cover cover = Cover.PLAIN;
 	private Content content = Content.EMPTY;
@@ -22,14 +20,17 @@ public class Cell implements GameCell {
 		}
 	}
 
-	public Tile tile() {
-		return cover.tile(content);
+	@Override
+	public String name() {
+		return cover.name(content);
 	}
 
+	@Override
 	public int uncover() {
 		return cover.uncover(this);
 	}
 
+	@Override
 	public int flag() {
 		return cover.toggleFlag(this);
 	}

@@ -3,7 +3,7 @@ package org.fuwjax.test;
 import java.nio.file.Paths;
 
 import org.fuwjax.console.ConsoleTestRunner;
-import org.fuwjax.minesweeper.Minesweeper;
+import org.fuwjax.game.TextGameEngine;
 import org.junit.Test;
 
 public class BoardWithRandomMinesTest {
@@ -12,7 +12,7 @@ public class BoardWithRandomMinesTest {
 		new ConsoleTestRunner(){
 			@Override
 			public void daemon() throws Exception {
-				Minesweeper.main("10", "10", "10", "134");
+				TextGameEngine.main("minesweeper");
 			}
 		}.test(Paths.get("src/test/resources/win.log"));
 	}
@@ -22,7 +22,7 @@ public class BoardWithRandomMinesTest {
 		new ConsoleTestRunner(){
 			@Override
 			public void daemon() throws Exception {
-				Minesweeper.main("10", "10", "10", "666");
+				TextGameEngine.main("minesweeper");
 			}
 		}.test(Paths.get("src/test/resources/fail.log"));
 	}

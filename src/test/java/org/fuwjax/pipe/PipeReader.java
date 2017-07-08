@@ -60,14 +60,14 @@ public class PipeReader implements PipeSink{
 	}
 
 	@Override
-	public void writeLine(String line) {
+	public void writeLine(String output) {
 		lock.lock();
 		try{
 			while(isSet && !closed){
 				toggle.await(100, TimeUnit.MILLISECONDS);
 			}
 			isSet = true;
-			this.line = line;
+			this.line = output;
 			toggle.signalAll();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();

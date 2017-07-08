@@ -2,8 +2,8 @@ package org.fuwjax.minesweeper;
 
 import org.fuwjax.game.Tile;
 
-public interface GameCell {
-	static GameCell NULL = new GameCell(){};
+public interface GameCell extends Tile {
+	static GameCell NULL = () -> "NULL";
 	
 	default int uncover(){
 		return 0;
@@ -13,7 +13,6 @@ public interface GameCell {
 		return 0;
 	}
 	
-	default Tile tile(){
-		return Tile.NULL;
-	}
+	@Override
+	String name();
 }

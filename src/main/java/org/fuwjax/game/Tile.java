@@ -1,9 +1,9 @@
 package org.fuwjax.game;
 
 public interface Tile {
-	public static Tile NULL = new Tile(){};
-	
-	default String rep(){
-		return "";
+	String name();
+
+	static Tile intTile(Integer value) {
+		return value::toString;
 	}
 }
