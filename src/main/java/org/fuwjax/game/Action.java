@@ -5,8 +5,7 @@ public enum Action {
 	RIGHT_CLICK("r (?<row>\\d+) (?<column>\\d+)"),
 	HELP("h"),
 	QUIT("q"),
-	NEW_GAME("n"),
-	TICK("x");
+	NEW_GAME("n");
 	
 	final String regex;
 

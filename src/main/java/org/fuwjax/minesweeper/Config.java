@@ -14,9 +14,6 @@ public class Config {
 	private int mines = 10;
 	private Random rnd = new Random();
 
-	public Config() {
-	}
-
 	public void init(Gesture gesture) {
 		this.rows = gesture.get("rows", rows);
 		this.columns = gesture.get("columns", columns);

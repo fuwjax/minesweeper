@@ -3,7 +3,7 @@ package org.fuwjax.minesweeper;
 public enum Cover {
 	PLAIN {
 		@Override
-		int uncover(Cell cell) {
+		int uncover(Cell cell) throws LostGameException {
 			return cell.reveal();
 		}
 
@@ -27,7 +27,7 @@ public enum Cover {
 		}
 	};
 
-	int uncover(Cell cell){
+	int uncover(Cell cell) throws LostGameException{
 		return 0;
 	}
 

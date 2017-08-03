@@ -26,7 +26,7 @@ public class Cell implements GameCell {
 	}
 
 	@Override
-	public int uncover() {
+	public int uncover() throws LostGameException {
 		return cover.uncover(this);
 	}
 
@@ -35,7 +35,7 @@ public class Cell implements GameCell {
 		return cover.toggleFlag(this);
 	}
 
-	public int uncoverAdjacent() {
+	public int uncoverAdjacent() throws LostGameException {
 		assert content == Content.EMPTY;
 		int revealed = 0;
 		for(Cell cell: adjacent){
@@ -44,7 +44,7 @@ public class Cell implements GameCell {
 		return revealed;
 	}
 
-	public int reveal() {
+	public int reveal() throws LostGameException {
 		cover = Cover.NONE;
 		return content.reveal(this);
 	}

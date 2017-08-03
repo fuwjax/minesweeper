@@ -23,5 +23,15 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 		</dependency>
+		<dependency>
+			<groupId>org.fuwjax.oss</groupId>
+			<artifactId>funco</artifactId>
+			<version>1.44</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fuwjax.oss</groupId>
+			<artifactId>gild</artifactId>
+			<version>1.44</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -1,7 +1,6 @@
 package org.fuwjax.game;
 
 import static org.fuwjax.game.Action.NEW_GAME;
-import static org.fuwjax.game.Action.TICK;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -40,7 +39,7 @@ public final class TextGameEngine {
 		throw new RuntimeException("No game found for " + name);
 	}
 
-	public TextGameEngine(final Game game, Properties props) {
+	private TextGameEngine(final Game game, Properties props) {
 		this.game = game;
 		this.props = props;
 		patterns = new EnumMap<>(Action.class);
@@ -49,20 +48,26 @@ public final class TextGameEngine {
 		}
 	}
 
-	public void start() throws Exception {
+	private void start() throws Exception {
+		int tick = 0;
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-			Grid grid = game.apply(new Gesture(NEW_GAME));
-			while (grid.state() != GameState.QUIT) {
-				System.out.println(display(grid));
+			GameStatus status = game.apply(new Gesture(NEW_GAME));
+			while (status.state() != GameState.QUIT) {
+				if(status.message() != null) {
+					System.out.println(status.message());
+				}
+				System.out.println(display(game.grid(tick++)));
 				String line = reader.readLine();
-				game.apply(new Gesture(TICK));
 				Gesture gesture = createGesture(line);
-				grid = game.apply(gesture);
+				if(gesture.action() == NEW_GAME) {
+					tick = 0;
+				}
+				status = game.apply(gesture);
 			}
 		}
 	}
 
-	public Gesture createGesture(String line) {
+	private Gesture createGesture(String line) {
 		for (Action action : Action.values()) {
 			Matcher match = patterns.get(action).matcher(line);
 			if (match.matches()) {
@@ -72,11 +77,8 @@ public final class TextGameEngine {
 		return new Gesture(Action.HELP);
 	}
 
-	public String display(Grid grid) {
+	private String display(Grid grid) {
 		final StringBuilder builder = new StringBuilder();
-		if(grid.status() != null) {
-			builder.append(grid.status()).append("\n");
-		}
 		builder.append(header(grid.header()));
 		Tile[][] tiles = grid.tiles();
 		for (int row = 0; row < tiles.length; row++) {

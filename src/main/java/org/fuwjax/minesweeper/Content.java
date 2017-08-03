@@ -8,13 +8,13 @@ public enum Content {
 		}
 
 		@Override
-		public int reveal(Cell cell) {
+		public int reveal(Cell cell) throws LostGameException {
 			throw new LostGameException();
 		}
 	},
 	EMPTY {
 		@Override
-		public int reveal(Cell cell) {
+		public int reveal(Cell cell) throws LostGameException {
 			return 1 + cell.uncoverAdjacent();
 		}
 	},
@@ -25,7 +25,7 @@ public enum Content {
 		return values()[ordinal() + 1];
 	}
 
-	public int reveal(Cell cell) {
+	public int reveal(Cell cell) throws LostGameException {
 		return 1;
 	}
 }

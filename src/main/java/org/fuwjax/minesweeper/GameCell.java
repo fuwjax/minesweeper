@@ -5,7 +5,7 @@ import org.fuwjax.game.Tile;
 public interface GameCell extends Tile {
 	static GameCell NULL = () -> "NULL";
 	
-	default int uncover(){
+	default int uncover() throws LostGameException{
 		return 0;
 	}
 	

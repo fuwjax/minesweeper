@@ -1,7 +1,9 @@
 package org.fuwjax.game;
 
 public interface Game {
-	Grid apply(Gesture gesture);
+	GameStatus apply(Gesture gesture);
+	
+	Grid grid(int tick);
 	
 	String name();
 }
